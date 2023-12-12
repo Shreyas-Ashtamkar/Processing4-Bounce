@@ -7,6 +7,9 @@ abstract class GameObject{
 
   color fillColor = color(255,255,255);
   color borderColor = color(0,0,0);
+  
+  boolean inRestitutionX = false;
+  boolean inRestitutionY = false;
 
   GameObject(){
     this(0.0, 0.0, 0.0, 0.0, 0.0, 0.0 , 0.0, 0.0);
@@ -42,6 +45,7 @@ abstract class GameObject{
     this.setVelocity(velX, velY);
     this.setAcceleration(accX, accY);
     this.setColor(objectColor);
+    this.borderColor = objectColor;
   }
   
   public float[] getSize(){
@@ -89,11 +93,17 @@ abstract class GameObject{
   }
   
   public void bounceX(){
-    setVelocity(velocity[X]*-1*coe, velocity[Y]);
+    if(inRestitutionX)
+      return;
+    setVelocity(this.velocity[X]*-1*this.coe, this.velocity[Y]);
+    this.inRestitutionX = true;
   }
   
-  public void bounceY(){
-    setVelocity(velocity[X], velocity[Y]*-1*coe);
+  public void bounceY(){ //<>//
+    if(inRestitutionY)  //<>//
+      return; //<>//
+    setVelocity(this.velocity[X], this.velocity[Y]*-1*this.coe); //<>//
+    this.inRestitutionY = true; //<>//
   }
   
   public void update(){
@@ -108,18 +118,29 @@ abstract class GameObject{
     );
   }
   
+  public float distanceFrom(GameObject o){
+    return sqrt(sq(this.getPosition()[X] - o.getPosition()[X]) + sq(this.getPosition()[Y] - o.getPosition()[Y]));
+  }
+  
+  public float distanceFrom(float x, float y){
+    return sqrt(sq(this.getPosition()[X] - x) + sq(this.getPosition()[Y] - y));
+  }
+  
   //Save previous color, paint and restore color
   public void paint(Runnable action){
     color prevColor = getCurrentFillColor();
+    color prevStroke = getCurrentStrokeColor();
     
+    stroke(fillColor);
     fill(fillColor);
     action.run();
-    
     fill(prevColor);
+    stroke(prevStroke);
   }
   
   public boolean checkCollision(GameObject o){
     return false;
   };
+
   abstract public void draw();
 }

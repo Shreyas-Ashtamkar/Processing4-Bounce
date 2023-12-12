@@ -1,10 +1,10 @@
 interface Physics {
-  public boolean collision(GameObject a, GameObject b);
-  public void restitution();
+  public int collision(GameObject o);
+  public void restitution(GameObject o);
 }
 
 interface PhysicalObject {
-  float coe = 1;
+  public void extAccelerate(float accX, float accY);
   public void bounceX();
   public void bounceY();
 }

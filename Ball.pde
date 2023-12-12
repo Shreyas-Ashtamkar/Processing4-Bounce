@@ -1,6 +1,5 @@
 class Ball extends GameObject implements PhysicalObject{
   float radius;
-  float coe = 0.8;
   
   Ball(){
     this(50);
@@ -36,6 +35,8 @@ class Ball extends GameObject implements PhysicalObject{
   Ball(float radius, float posX, float posY, float velX, float velY, float accX, float accY){
     super(radius, radius, posX, posY, velX, velY, accX, accY);
     this.setRadius(radius);
+    setColor(color(0, 0, 255));
+    this.coe = 1;
   }
   
   public float getRadius(){
@@ -46,12 +47,13 @@ class Ball extends GameObject implements PhysicalObject{
     this.radius = radius;
   }
   
+  @Override
   public boolean checkCollision(GameObject o){
     if(o instanceof Ball){
       return abs(sqrt(sq(o.position[Y])+sq(o.position[X])) - sqrt(sq(this.position[Y])+sq(this.position[X]))) == (((Ball)o).getRadius()+this.getRadius()); 
     }
     else if (o instanceof Wall){
-      // return abs(sqrt(sq(o.position[Y])+sq(o.position[X])) - sqrt(sq(this.position[Y])+sq(this.position[X]))) == 
+      return o.checkCollision(this);
     }
     return false;
   }
@@ -59,6 +61,12 @@ class Ball extends GameObject implements PhysicalObject{
   @Override
   public void draw(){
     update();
-    circle(position[X], position[Y], radius*2); // Diameter based drawing function
+    paint(
+      () -> circle(position[X], position[Y], radius*2)
+    );
+  }
+  
+  public void extAccelerate(float accX, float accY){
+    setVelocity(getVelocity()[X] + accX, getVelocity()[Y] + accY);
   }
 }
