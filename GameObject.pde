@@ -12,7 +12,7 @@ abstract class GameObject{
   boolean inRestitutionY = false;
 
   GameObject(){
-    this(0.0, 0.0, 0.0, 0.0, 0.0, 0.0 , 0.0, 0.0);
+    this(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   }
   
   GameObject(float size){
