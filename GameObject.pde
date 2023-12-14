@@ -10,6 +10,11 @@ abstract class GameObject{
   
   boolean inRestitutionX = false;
   boolean inRestitutionY = false;
+  
+  PImage image;
+  float  imageSize;
+  float  imageAngle;
+  float  imageRotationSpeed=0.01;
 
   GameObject(){
     this(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
@@ -92,6 +97,16 @@ abstract class GameObject{
     this.fillColor = objectColor;
   }
   
+  void setImage(String image_name, float size){
+    this.image = loadImage(image_name);
+    this.imageSize = size;
+  }
+  
+  void setImage(PImage image, float size){
+    this.image = image;
+    this.imageSize = size;
+  }
+  
   public void bounceX(){
     if(inRestitutionX)
       return;
@@ -118,6 +133,11 @@ abstract class GameObject{
     );
   }
   
+  public void updateRotation(){
+    imageAngle += imageRotationSpeed;
+    imageAngle = imageAngle % TWO_PI;
+  }
+  
   public float distanceFrom(GameObject o){
     return sqrt(sq(this.getPosition()[X] - o.getPosition()[X]) + sq(this.getPosition()[Y] - o.getPosition()[Y]));
   }
@@ -136,6 +156,22 @@ abstract class GameObject{
     action.run();
     fill(prevColor);
     stroke(prevStroke);
+  }
+  
+  public void showImage(){
+    if(image!=null)
+      image(image, position[X], position[Y], imageSize, imageSize);
+  }
+  
+  public void showRotatingImage(){
+    tint(0,20);
+    updateRotation();
+    
+    push();
+      translate(position[X]+imageSize/2, position[Y]+imageSize/2); // Translate such that the center of the image becomes the origin
+      rotate(imageAngle); // rotate the complete canvas for this particular usecase till this angle
+      image(image, -imageSize/2, -imageSize/2, imageSize, imageSize); // Draw image such that image center is drawn on this origin
+    pop();
   }
   
   public boolean checkCollision(GameObject o){
