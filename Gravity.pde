@@ -1,8 +1,9 @@
 class Gravity extends GameObject{
   float rotationSpeed = 0.01;
+  final double G = 6.6743e-11, M=1e+12;
   
   Gravity(float posX, float posY, float acc){
-    super(acc, acc, posX, posY, acc, acc);
+    super(acc, acc, posX, posY, 0.0, 0.0, acc, acc);
     setColor(color(0,0));
   }
   
@@ -26,32 +27,54 @@ class Gravity extends GameObject{
     setImage(image, image_size);
   }
   
+  public void setGravity(float gravity){
+    this.acceleration[X] = gravity;
+    this.acceleration[Y] = gravity;
+  }
+  
   public float getGravity(){
     return this.acceleration[X];
   }
   
-  public void apply(Ball b){
-    float pullForce = 1 - constrain(ball.distanceFrom(position[X]+imageSize/2, position[Y]+imageSize/2)*0.001, 0, 1);
+  public float getPullForce(Ball b){
+    float pullForce = getGravity();
+    pullForce *= G*M/sq(dist(b.position[X], b.position[Y], position[X]+imageSize/2, position[Y]+imageSize/2));
+    pullForce = -constrain(pullForce, 0, getGravity()/110);
+    
+    return pullForce;
+  }
+  
+  public float[] getGravity(Ball b){
+    float pullForce = getPullForce(b);
+    float acc[] = {0.0, 0.0};
     
     if(b.position[X] > position[X]+imageSize/2){
-      b.extAccelerate(-pullForce, 0);
+      acc[X] = pullForce;
     }
     else if(b.position[X] < position[X]+imageSize/2){
-      b.extAccelerate(pullForce, 0);
+      acc[X] = -pullForce;
     }
     else{
       //println("Ball on UNDER side");
     }
-    
+      
     if(b.position[Y] > position[Y]+imageSize/2){
-      b.extAccelerate(0, -pullForce);
+      acc[Y] = pullForce;
     }
     else if(b.position[Y] < position[Y]+imageSize/2){
-      b.extAccelerate(0, pullForce);
+      acc[Y] = -pullForce;
     }
     else{
       //println("Ball on UNDER side");
     }
+  
+    return acc;
+  }
+  
+  public void apply(Ball b){
+    float a[] = getGravity(b);
+    
+    b.extAccelerate(a[X],a[Y]);
   }
   
   @Override //Overriding to disable updating speed, incase called.
@@ -59,6 +82,8 @@ class Gravity extends GameObject{
   
   
   public void draw(){
+    //showCircle();
+    //showImage();
     showRotatingImage();
   }
 }

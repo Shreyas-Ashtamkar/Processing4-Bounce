@@ -79,14 +79,12 @@ class Arena extends Box implements Physics{
   public boolean checkCollision(GameObject o){
     return collision(o) != -1;
   }
-   //<>// //<>//
+  
   public void restitution(GameObject a){
-    Ball b = (Ball)a; //<>// //<>//
-    
-    if (collision(ball) % 2 == 0)
-        b.bounceX(); //<>// //<>//
+    if (collision(a) % 2 == 0)
+        a.bounceX();
     else
-        b.bounceY(); //<>// //<>//
+        a.bounceY();
   }
   
   public boolean checkOutOfBounds(GameObject o){

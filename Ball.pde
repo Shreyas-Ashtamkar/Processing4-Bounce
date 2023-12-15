@@ -44,18 +44,50 @@ class Ball extends GameObject implements PhysicalObject{
   }
 
   public void setRadius(float radius){
+    this.setSize(radius, radius);
     this.radius = radius;
   }
   
   @Override
   public boolean checkCollision(GameObject o){
     if(o instanceof Ball){
-      return abs(sqrt(sq(o.position[Y])+sq(o.position[X])) - sqrt(sq(this.position[Y])+sq(this.position[X]))) == (((Ball)o).getRadius()+this.getRadius()); 
+      if(!(dist(o.position[X],o.position[Y], this.position[X], this.position[Y]) <= (o.getSize()[X]+this.getRadius()))){
+        return o.inRestitutionXY = this.inRestitutionXY = false;
+      }
+      else{
+        return true;
+      }
     }
     else if (o instanceof Wall){
       return o.checkCollision(this);
     }
     return false;
+  }
+  
+  public void restitution(Ball b){
+    float relVelocity[] = {
+      b.velocity[X] - this.velocity[X],
+      b.velocity[Y] - this.velocity[Y]
+    };
+    
+    this.bounceXY(relVelocity[X], relVelocity[Y]);
+    b.bounceXY(-relVelocity[X], -relVelocity[Y]);
+  }
+  
+  public void applyGravity(Gravity g){
+    g.apply(this);
+  }
+  
+  public void applyMultiGravity(ArrayList<Gravity> gs){
+    float a[] = {0.0,0.0}, cg[];
+    
+    for(Gravity g:gs){
+      cg = g.getGravity(this);
+      a[X] += cg[X];
+      a[Y] += cg[Y];
+    }
+    
+    this.extAccelerate(a[X], a[Y]);
   }
   
   @Override
@@ -64,9 +96,5 @@ class Ball extends GameObject implements PhysicalObject{
     paint(
       () -> circle(position[X], position[Y], radius*2)
     );
-  }
-  
-  public void extAccelerate(float accX, float accY){
-    setVelocity(getVelocity()[X] + accX, getVelocity()[Y] + accY);
   }
 }

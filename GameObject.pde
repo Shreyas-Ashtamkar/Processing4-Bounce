@@ -10,11 +10,12 @@ abstract class GameObject{
   
   boolean inRestitutionX = false;
   boolean inRestitutionY = false;
+  boolean inRestitutionXY = false;
   
   PImage image;
   float  imageSize;
   float  imageAngle;
-  float  imageRotationSpeed=0.01;
+  public static final float imageRotationSpeed=0.01;
 
   GameObject(){
     this(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
@@ -114,11 +115,19 @@ abstract class GameObject{
     this.inRestitutionX = true;
   }
   
-  public void bounceY(){ //<>//
-    if(inRestitutionY)  //<>//
-      return; //<>//
-    setVelocity(this.velocity[X], this.velocity[Y]*-1*this.coe); //<>//
-    this.inRestitutionY = true; //<>//
+  public void bounceY(){
+    if(inRestitutionY) 
+      return;
+    setVelocity(this.velocity[X], this.velocity[Y]*-1*this.coe);
+    this.inRestitutionY = true;
+  }
+  
+  //Bounce according to the relative velocities
+  public void bounceXY(float velX, float velY){
+    if(inRestitutionXY) 
+      return;
+    setVelocity((this.velocity[X]+velX)*this.coe, (this.velocity[Y]+velY)*this.coe);
+    this.inRestitutionXY = true;
   }
   
   public void update(){
@@ -158,25 +167,46 @@ abstract class GameObject{
     stroke(prevStroke);
   }
   
+  public void showCircle(){
+    setColor(color(0,30));
+    shapeMode(CENTER);
+    paint(
+      () -> ellipse(position[X]+imageSize/2, position[Y]+imageSize/2, imageSize/2, imageSize/2)
+    );
+  }
+  
   public void showImage(){
-    if(image!=null)
-      image(image, position[X], position[Y], imageSize, imageSize);
+    if(image==null) showCircle();
+    
+    tint(0,20);
+    image(image, position[X], position[Y], imageSize, imageSize);
   }
   
   public void showRotatingImage(){
+    if(image==null) return;
+
     tint(0,20);
     updateRotation();
     
-    push();
+    pushMatrix();
       translate(position[X]+imageSize/2, position[Y]+imageSize/2); // Translate such that the center of the image becomes the origin
       rotate(imageAngle); // rotate the complete canvas for this particular usecase till this angle
       image(image, -imageSize/2, -imageSize/2, imageSize, imageSize); // Draw image such that image center is drawn on this origin
-    pop();
+    popMatrix();
   }
   
   public boolean checkCollision(GameObject o){
     return false;
   };
+  
+  public boolean checkCollision(float posX, float posY){
+    return dist(posX, posY, position[X]+this.imageSize/2, position[Y]+this.imageSize/2) < this.imageSize/4;
+    //return false;
+  };
+  
+  public void extAccelerate(float accX, float accY){
+    setVelocity(getVelocity()[X] + accX, getVelocity()[Y] + accY);
+  }
 
   abstract public void draw();
 }
