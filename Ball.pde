@@ -36,7 +36,7 @@ class Ball extends GameObject implements PhysicalObject{
     super(radius, radius, posX, posY, velX, velY, accX, accY);
     this.setRadius(radius);
     setColor(color(0, 0, 255));
-    this.coe = 1;
+    this.coe = 0.8;
   }
   
   public float getRadius(){
@@ -51,7 +51,7 @@ class Ball extends GameObject implements PhysicalObject{
   @Override
   public boolean checkCollision(GameObject o){
     if(o instanceof Ball){
-      if(!(dist(o.position[X],o.position[Y], this.position[X], this.position[Y]) <= (o.getSize()[X]+this.getRadius()))){
+      if(!(dist(o.position[X],o.position[Y], this.position[X], this.position[Y]) <= (o.getSize()[X]+this.getRadius())) || this == o){
         return o.inRestitutionXY = this.inRestitutionXY = false;
       }
       else{
@@ -64,14 +64,26 @@ class Ball extends GameObject implements PhysicalObject{
     return false;
   }
   
-  public void restitution(Ball b){
-    float relVelocity[] = {
-      b.velocity[X] - this.velocity[X],
-      b.velocity[Y] - this.velocity[Y]
-    };
+  public PVector reflectedVel(float[] a, float[] b, float coe){
+    PVector aVelocity = new PVector(a[X], a[Y]);
+    PVector bVelocity = new PVector(b[X], b[Y]);
     
-    this.bounceXY(relVelocity[X], relVelocity[Y]);
-    b.bounceXY(-relVelocity[X], -relVelocity[Y]);
+    PVector relativeVel     = PVector.sub(bVelocity, aVelocity);
+    PVector collisionNormal =  PVector.sub(bVelocity, aVelocity).normalize();
+    
+    float   projectedVel = PVector.dot(relativeVel, collisionNormal);
+    PVector reflectedVel = PVector.mult(collisionNormal, projectedVel * coe);
+
+    return reflectedVel;
+  }
+  
+  public void restitution(Ball b){ //<>// //<>//
+    PVector reflectedVel = reflectedVel(this.velocity, b.velocity, 1);
+    
+    println("\r Relative Velocity : "+reflectedVel.x+", "+reflectedVel.y);
+    
+    this.bounceXY(reflectedVel.x, reflectedVel.y);
+    b.bounceXY(-reflectedVel.x, -reflectedVel.y);
   }
   
   public void applyGravity(Gravity g){

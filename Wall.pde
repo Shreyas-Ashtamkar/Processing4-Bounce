@@ -5,7 +5,7 @@ class Wall extends Box implements PhysicalObject{
   boolean horizontal = false;
   
   //Core Properties
-  float thickness; //<>// //<>// //<>// //<>//
+  float thickness; //<>// //<>// //<>// //<>// //<>// //<>// //<>//
   float wallLength;
   
   

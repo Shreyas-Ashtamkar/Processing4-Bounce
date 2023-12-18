@@ -126,7 +126,7 @@ abstract class GameObject{
   public void bounceXY(float velX, float velY){
     if(inRestitutionXY) 
       return;
-    setVelocity((this.velocity[X]+velX)*this.coe, (this.velocity[Y]+velY)*this.coe);
+    setVelocity((this.velocity[X]+velX), (this.velocity[Y]+velY));
     this.inRestitutionXY = true;
   }
   
